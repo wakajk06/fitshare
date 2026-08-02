@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitShare — Share Your Outfits</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar__inner">
+      <a href="#" class="navbar__logo">
+        <span class="navbar__logo-icon">✦</span>
+        FitShare
+      </a>
+      <button type="button" class="btn btn--primary" id="addFitBtn">
+        <span class="btn__icon">+</span>
+        Add New Fit
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1 class="hero__title">Share your style</h1>
+      <p class="hero__subtitle">Upload outfit photos and link every piece so others can shop your look.</p>
+    </section>
+
+    <section class="feed" id="feedSection">
+      <div class="feed__header">
+        <h2 class="feed__title">Community Fits</h2>
+        <span class="feed__count" id="fitCount">0 outfits</span>
+      </div>
+      <div class="feed__grid" id="fitsGrid"></div>
+      <div class="feed__empty" id="emptyState">
+        <h3>No fits yet</h3>
+        <p>Be the first to share an outfit and inspire others to shop your look.</p>
+        <button type="button" class="btn btn--secondary" id="emptyAddBtn">Add Your First Fit</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Fit Modal -->
+  <div class="modal" id="fitModal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal__backdrop" id="modalBackdrop"></div>
+    <div class="modal__content">
+      <header class="modal__header">
+        <h2 id="modalTitle">Add New Fit</h2>
+        <button type="button" class="modal__close" id="closeModalBtn" aria-label="Close">&times;</button>
+      </header>
+
+      <form id="fitForm" class="fit-form">
+        <div class="fit-form__group">
+          <label for="outfitName">Outfit Name</label>
+          <input
+            type="text"
+            id="outfitName"
+            name="outfitName"
+            placeholder="e.g. Summer Brunch Look"
+            required
+            maxlength="80"
+          >
+        </div>
+
+        <div class="fit-form__group">
+          <label>Outfit Photo</label>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="imageInput" accept="image/*" hidden>
+            <div class="upload-zone__placeholder" id="uploadPlaceholder">
+              <span class="upload-zone__icon">📷</span>
+              <p>Drag & drop an image here</p>
+              <span class="upload-zone__hint">or click to browse</span>
+            </div>
+            <div class="upload-zone__preview" id="uploadPreview" hidden>
+              <img id="previewImage" alt="Outfit preview">
+              <button type="button" class="upload-zone__remove" id="removeImageBtn" aria-label="Remove image">&times;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fit-form__group">
+          <div class="fit-form__links-header">
+            <label>Shopping Links</label>
+            <button type="button" class="btn btn--ghost btn--sm" id="addLinkBtn">+ Add Item</button>
+          </div>
+          <div class="links-list" id="linksList">
+            <div class="link-row" data-link-index="0">
+              <input type="text" class="link-row__desc" placeholder="Item name (optional)" maxlength="60">
+              <input type="url" class="link-row__url" placeholder="https://shop-link.com" required>
+              <button type="button" class="link-row__remove" aria-label="Remove link" hidden>&times;</button>
+            </div>
+          </div>
+        </div>
+
+        <footer class="fit-form__actions">
+          <button type="button" class="btn btn--ghost" id="cancelFormBtn">Cancel</button>
+          <button type="submit" class="btn btn--primary">Share Fit</button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- Fit Card Template -->
+  <template id="fitCardTemplate">
+    <article class="fit-card">
+      <div class="fit-card__image-wrap">
+        <img class="fit-card__image" src="" alt="">
+        <button type="button" class="fit-card__delete" aria-label="Delete fit">&times;</button>
+      </div>
+      <div class="fit-card__body">
+        <h3 class="fit-card__title"></h3>
+        <ul class="fit-card__links"></ul>
+        <div class="fit-card__footer">
+          <button type="button" class="fit-card__like" aria-label="Like this fit">
+            <span class="fit-card__like-icon">♡</span>
+            <span class="fit-card__like-count">0</span>
+          </button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

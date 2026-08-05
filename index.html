@@ -24,10 +24,21 @@
             <span class="theme-toggle__thumb"></span>
           </span>
         </button>
-        <button type="button" class="btn btn--primary" id="addFitBtn">
-          <span class="btn__icon">+</span>
-          Add New Fit
-        </button>
+
+        <div class="user-nav" id="userNavGuest">
+          <button type="button" class="btn btn--outline btn--sm" id="loginNavBtn">Log In</button>
+          <button type="button" class="btn btn--secondary btn--sm" id="signupNavBtn">Create Account</button>
+        </div>
+
+        <div class="user-nav user-nav--auth" id="userNavAuth" hidden>
+          <div class="user-badge" id="userBadge">
+            <span class="user-badge__avatar" id="userAvatar">U</span>
+            <span class="user-badge__name" id="userName">User</span>
+          </div>
+          <button type="button" class="btn btn--ghost btn--sm" id="logoutBtn">Log Out</button>
+        </div>
+
+        <button type="button" class="btn btn--primary btn--icon-only" id="addFitBtn" aria-label="Add New Fit" title="Add New Fit">+</button>
       </div>
     </div>
   </header>
@@ -51,6 +62,57 @@
       </div>
     </section>
   </main>
+
+  <!-- Auth Modal (Log In / Create Account) -->
+  <div class="modal" id="authModal" aria-hidden="true" role="dialog" aria-labelledby="authModalTitle">
+    <div class="modal__backdrop" id="authModalBackdrop"></div>
+    <div class="modal__content modal__content--auth">
+      <header class="modal__header">
+        <h2 id="authModalTitle">Welcome to FitShare</h2>
+        <button type="button" class="modal__close" id="closeAuthModalBtn" aria-label="Close">&times;</button>
+      </header>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" id="loginTabBtn">Log In</button>
+        <button type="button" class="auth-tab" id="signupTabBtn">Create Account</button>
+      </div>
+
+      <div class="auth-body">
+        <p class="auth-banner" id="authBanner" hidden>Please log in or create an account to share outfits.</p>
+        <div id="authAlert" class="auth-alert" hidden></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
+          <div class="fit-form__group">
+            <label for="loginUsername">Username or Email</label>
+            <input type="text" id="loginUsername" placeholder="e.g. styleicon or alex@example.com" required>
+          </div>
+          <div class="fit-form__group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">Log In</button>
+        </form>
+
+        <!-- Sign Up Form -->
+        <form id="signupForm" class="auth-form" hidden>
+          <div class="fit-form__group">
+            <label for="signupName">Full Name / Display Name</label>
+            <input type="text" id="signupName" placeholder="e.g. Alex Morgan" required maxlength="50">
+          </div>
+          <div class="fit-form__group">
+            <label for="signupUsername">Username</label>
+            <input type="text" id="signupUsername" placeholder="e.g. alexfashion" required maxlength="30">
+          </div>
+          <div class="fit-form__group">
+            <label for="signupPassword">Password</label>
+            <input type="password" id="signupPassword" placeholder="Choose a password (min 4 chars)" required minlength="4">
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">Create Account</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- Add Fit Modal -->
   <div class="modal" id="fitModal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
@@ -119,6 +181,7 @@
         <img class="fit-card__image" src="" alt="">
         <div class="fit-card__overlay">
           <h3 class="fit-card__title"></h3>
+          <span class="fit-card__author">by <span class="fit-card__author-name"></span></span>
         </div>
         <button type="button" class="fit-card__delete" aria-label="Delete fit">&times;</button>
       </div>

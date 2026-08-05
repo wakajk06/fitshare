@@ -10,12 +10,30 @@
   --color-border: #e8e2db;
   --color-shadow: rgba(26, 26, 26, 0.08);
   --color-like: #e85d75;
+  --color-navbar-bg: rgba(255, 255, 255, 0.92);
+  --color-overlay-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.15) 55%, transparent 100%);
   --font-sans: "DM Sans", system-ui, sans-serif;
   --font-display: "Playfair Display", Georgia, serif;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
   --transition: 0.2s ease;
+}
+
+/* ===== Dark Mode Variables ===== */
+[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-text: #e8e4e0;
+  --color-text-muted: #9a9590;
+  --color-accent: #e07a5f;
+  --color-accent-hover: #eb9075;
+  --color-accent-light: #2d2220;
+  --color-border: #2e2a27;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-like: #f06b80;
+  --color-navbar-bg: rgba(18, 18, 18, 0.92);
+  --color-overlay-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.25) 55%, transparent 100%);
 }
 
 /* ===== Reset & Base ===== */
@@ -37,6 +55,7 @@ body {
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 img {
@@ -63,9 +82,10 @@ a:hover {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--color-navbar-bg);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .navbar__inner {
@@ -90,6 +110,85 @@ a:hover {
 .navbar__logo-icon {
   color: var(--color-accent);
   font-size: 1.1rem;
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ===== Theme Toggle (Pill Switch) ===== */
+.theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 52px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  transition: background 0.3s ease;
+}
+
+[data-theme="dark"] .theme-toggle__track {
+  background: #3a3530;
+}
+
+.theme-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+}
+
+[data-theme="dark"] .theme-toggle__thumb {
+  transform: translateX(24px);
+  background: #e8e4e0;
+}
+
+.theme-toggle__sun,
+.theme-toggle__moon {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.theme-toggle__sun {
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.theme-toggle__moon {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+}
+
+[data-theme="dark"] .theme-toggle__sun {
+  opacity: 0.4;
+  color: var(--color-text-muted);
+}
+
+[data-theme="dark"] .theme-toggle__moon {
+  opacity: 1;
+  color: #f0c866;
 }
 
 /* ===== Buttons ===== */
@@ -127,6 +226,10 @@ a:hover {
 
 .btn--secondary:hover {
   background: #edd9d0;
+}
+
+[data-theme="dark"] .btn--secondary:hover {
+  background: #3d2e28;
 }
 
 .btn--ghost {
@@ -211,6 +314,7 @@ a:hover {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   border: 2px dashed var(--color-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .feed__empty.hidden {
@@ -242,7 +346,8 @@ a:hover {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 2px 12px var(--color-shadow);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition), background 0.3s ease;
+  cursor: pointer;
 }
 
 .fit-card:hover {
@@ -268,6 +373,45 @@ a:hover {
   transform: scale(1.03);
 }
 
+/* ===== Card Overlay (name always visible) ===== */
+.fit-card__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 3rem 1.25rem 1.25rem;
+  background: var(--color-overlay-gradient);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.fit-card__title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== Card Body (hidden by default, revealed on hover/click) ===== */
+.fit-card__body {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 1.25rem;
+  opacity: 0;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+}
+
+/* Reveal on hover (desktop) */
+.fit-card:hover .fit-card__body,
+.fit-card--expanded .fit-card__body {
+  max-height: 400px;
+  padding: 1rem 1.25rem 1.25rem;
+  opacity: 1;
+}
+
 .fit-card__delete {
   position: absolute;
   top: 0.75rem;
@@ -285,24 +429,14 @@ a:hover {
   transition: opacity var(--transition), background var(--transition), color var(--transition);
 }
 
-.fit-card:hover .fit-card__delete {
+.fit-card:hover .fit-card__delete,
+.fit-card--expanded .fit-card__delete {
   opacity: 1;
 }
 
 .fit-card__delete:hover {
   background: #fee;
   color: #c0392b;
-}
-
-.fit-card__body {
-  padding: 1.25rem;
-}
-
-.fit-card__title {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
 }
 
 .fit-card__links {
@@ -328,6 +462,10 @@ a:hover {
 .fit-card__links li a:hover {
   background: #edd9d0;
   text-decoration: none;
+}
+
+[data-theme="dark"] .fit-card__links li a:hover {
+  background: #3d2e28;
 }
 
 .fit-card__links li a::before {
@@ -358,6 +496,10 @@ a:hover {
 .fit-card__like:hover {
   background: #fef0f2;
   color: var(--color-like);
+}
+
+[data-theme="dark"] .fit-card__like:hover {
+  background: rgba(240, 107, 128, 0.12);
 }
 
 .fit-card__like.liked {
@@ -407,6 +549,10 @@ a:hover {
   backdrop-filter: blur(4px);
 }
 
+[data-theme="dark"] .modal__backdrop {
+  background: rgba(0, 0, 0, 0.65);
+}
+
 .modal__content {
   position: relative;
   background: var(--color-surface);
@@ -417,7 +563,11 @@ a:hover {
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(26, 26, 26, 0.2);
   transform: translateY(20px);
-  transition: transform var(--transition);
+  transition: transform var(--transition), background 0.3s ease;
+}
+
+[data-theme="dark"] .modal__content {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .modal.open .modal__content {
@@ -477,7 +627,9 @@ a:hover {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
-  transition: border-color var(--transition), box-shadow var(--transition);
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: border-color var(--transition), box-shadow var(--transition), background 0.3s ease;
 }
 
 .fit-form__group input:focus {
@@ -525,6 +677,10 @@ a:hover {
 .link-row__remove:hover {
   background: #fee;
   color: #c0392b;
+}
+
+[data-theme="dark"] .link-row__remove:hover {
+  background: rgba(192, 57, 43, 0.15);
 }
 
 .fit-form__actions {
@@ -635,6 +791,24 @@ a:hover {
   }
 
   .fit-card__delete {
+    opacity: 1;
+  }
+
+  /* On mobile, disable hover expand — only use tap (JS class) */
+  .fit-card:hover .fit-card__body {
+    max-height: 0;
+    padding: 0 1.25rem;
+    opacity: 0;
+  }
+
+  /* Expanded state must override hover on mobile (higher specificity) */
+  .fit-card.fit-card--expanded .fit-card__body {
+    max-height: 500px;
+    padding: 1rem 1.25rem 1.25rem;
+    opacity: 1;
+  }
+
+  .fit-card.fit-card--expanded .fit-card__delete {
     opacity: 1;
   }
 }

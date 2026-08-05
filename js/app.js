@@ -20,6 +20,7 @@ const elements = {
   linksList: document.getElementById("linksList"),
   addLinkBtn: document.getElementById("addLinkBtn"),
   fitCardTemplate: document.getElementById("fitCardTemplate"),
+  themeToggle: document.getElementById("themeToggle"),
 };
 
 let selectedImageData = null;
@@ -139,6 +140,7 @@ function renderFits() {
     img.src = fit.image;
     img.alt = fit.name;
 
+    // Title is now inside the overlay on the image
     card.querySelector(".fit-card__title").textContent = fit.name;
 
     const linksList = card.querySelector(".fit-card__links");
@@ -158,12 +160,23 @@ function renderFits() {
     likeCount.textContent = fit.likes || 0;
     if (fit.liked) likeBtn.classList.add("liked");
 
-    likeBtn.addEventListener("click", () => toggleLike(fit.id));
+    likeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleLike(fit.id);
+    });
 
-    card.querySelector(".fit-card__delete").addEventListener("click", () => {
+    card.querySelector(".fit-card__delete").addEventListener("click", (e) => {
+      e.stopPropagation();
       if (confirm(`Delete "${fit.name}"?`)) {
         deleteFit(fit.id);
       }
+    });
+
+    // Click to toggle expand (for mobile / touch)
+    article.addEventListener("click", (e) => {
+      // Don't toggle if user clicked a link inside the body
+      if (e.target.closest("a") || e.target.closest("button")) return;
+      article.classList.toggle("fit-card--expanded");
     });
 
     article.dataset.id = fit.id;
@@ -272,6 +285,37 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// ===== Dark Mode Toggle =====
+function initTheme() {
+  const savedTheme = localStorage.getItem("fitshare_theme");
+  if (savedTheme) {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  } else {
+    // Respect system preference
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (prefersDark) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("fitshare_theme", next);
+}
+
+elements.themeToggle.addEventListener("click", toggleTheme);
+
+// Listen for system theme changes
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+  if (!localStorage.getItem("fitshare_theme")) {
+    document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+  }
+});
+
 // Init
+initTheme();
 addLinkRow();
 renderFits();

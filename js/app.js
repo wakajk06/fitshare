@@ -307,9 +307,21 @@ function getFormData() {
 }
 
 // ===== Rendering Feed =====
-function renderFits() {
-  const fits = loadFits();
+async function renderFits() {
   const currentUser = getCurrentUser();
+  let fits = loadFits();
+
+  try {
+    const userIdParam = currentUser ? `?userId=${currentUser.id}` : "";
+    const res = await fetch(`/api/fits${userIdParam}`);
+    if (res.ok) {
+      fits = await res.json();
+      saveFits(fits);
+    }
+  } catch (err) {
+    // API offline or DB env var pending
+  }
+
   elements.fitsGrid.innerHTML = "";
 
   fits.forEach((fit) => {
@@ -329,7 +341,6 @@ function renderFits() {
     }
 
     // Permission check for Deleting fit:
-    // Only show delete button if logged in AND user is the author of this fit
     const isOwner = currentUser && fit.authorId && currentUser.id === fit.authorId;
     if (isOwner) {
       article.classList.add("is-owner");
@@ -376,7 +387,7 @@ function renderFits() {
       toggleLike(fit.id);
     });
 
-    // Click to toggle expand (mobile / touch friendly)
+    // Click to toggle expand
     article.addEventListener("click", (e) => {
       if (e.target.closest("a") || e.target.closest("button")) return;
       article.classList.toggle("fit-card--expanded");
@@ -391,7 +402,13 @@ function renderFits() {
   elements.emptyState.classList.toggle("hidden", count > 0);
 }
 
-function toggleLike(id) {
+async function toggleLike(id) {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    openAuthModal("login", true);
+    return;
+  }
+
   const fits = loadFits();
   const fit = fits.find((f) => f.id === id);
   if (!fit) return;
@@ -399,18 +416,40 @@ function toggleLike(id) {
   fit.liked = !fit.liked;
   fit.likes = (fit.likes || 0) + (fit.liked ? 1 : -1);
   if (fit.likes < 0) fit.likes = 0;
-
   saveFits(fits);
+
+  try {
+    await fetch("/api/fits?action=like", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fitId: id, userId: currentUser.id }),
+    });
+  } catch (err) {
+    console.warn("Could not sync like to server:", err);
+  }
+
   renderFits();
 }
 
-function deleteFit(id) {
+async function deleteFit(id) {
+  const currentUser = getCurrentUser();
   const fits = loadFits().filter((f) => f.id !== id);
   saveFits(fits);
+
+  if (currentUser) {
+    try {
+      await fetch(`/api/fits?id=${id}&userId=${currentUser.id}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.warn("Could not delete fit from server:", err);
+    }
+  }
+
   renderFits();
 }
 
-function handleSubmit(e) {
+async function handleSubmit(e) {
   e.preventDefault();
 
   const currentUser = getCurrentUser();
@@ -432,8 +471,7 @@ function handleSubmit(e) {
     return;
   }
 
-  const fits = loadFits();
-  fits.unshift({
+  const newFit = {
     id: generateId(),
     name,
     image: selectedImageData,
@@ -443,15 +481,32 @@ function handleSubmit(e) {
     authorId: currentUser.id,
     authorName: currentUser.name || `@${currentUser.username}`,
     createdAt: Date.now(),
-  });
+  };
 
+  const fits = loadFits();
+  fits.unshift(newFit);
   saveFits(fits);
+
+  try {
+    const res = await fetch("/api/fits", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newFit),
+    });
+    if (res.ok) {
+      const serverFit = await res.json();
+      console.log("Saved fit to database:", serverFit);
+    }
+  } catch (err) {
+    console.warn("Could not save fit to database API:", err);
+  }
+
   renderFits();
   closeModal();
 }
 
 // ===== Auth Form Handlers =====
-function handleLoginSubmit(e) {
+async function handleLoginSubmit(e) {
   e.preventDefault();
   const usernameOrEmail = document.getElementById("loginUsername").value.trim().toLowerCase();
   const password = document.getElementById("loginPassword").value.trim();
@@ -459,6 +514,27 @@ function handleLoginSubmit(e) {
   if (!usernameOrEmail || !password) {
     showAuthAlert("Please fill out all fields.");
     return;
+  }
+
+  try {
+    const res = await fetch("/api/auth?action=login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: usernameOrEmail, password }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setCurrentUser(data);
+      closeAuthModal();
+      return;
+    } else if (res.status === 401) {
+      showAuthAlert(data.error || "Invalid username or password.");
+      return;
+    }
+  } catch (err) {
+    console.warn("API login failed, falling back to local storage:", err);
   }
 
   const users = getUsers();
@@ -477,7 +553,7 @@ function handleLoginSubmit(e) {
   closeAuthModal();
 }
 
-function handleSignupSubmit(e) {
+async function handleSignupSubmit(e) {
   e.preventDefault();
   const name = document.getElementById("signupName").value.trim();
   const username = document.getElementById("signupUsername").value.trim().toLowerCase();
@@ -496,6 +572,27 @@ function handleSignupSubmit(e) {
   if (password.length < 4) {
     showAuthAlert("Password must be at least 4 characters long.");
     return;
+  }
+
+  try {
+    const res = await fetch("/api/auth?action=signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, username, password }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setCurrentUser(data);
+      closeAuthModal();
+      return;
+    } else if (res.status === 409) {
+      showAuthAlert(data.error || "That username is already taken. Please try another.");
+      return;
+    }
+  } catch (err) {
+    console.warn("API signup failed, falling back to local storage:", err);
   }
 
   const users = getUsers();

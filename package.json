@@ -1,0 +1,13 @@
+{
+  "name": "fit-sharing-app",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "FitShare - Share outfits and shop the look",
+  "main": "js/app.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.4"
+  }
+}

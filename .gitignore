@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Local Environment Variables (Keep secrets out of GitHub!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel system files
+.vercel/
+
+# Operating System / IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

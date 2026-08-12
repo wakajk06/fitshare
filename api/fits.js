@@ -122,7 +122,7 @@ export default async function handler(req, res) {
     try {
       await sql`
         INSERT INTO fits (id, name, image, links, likes, author_id, author_name, created_at)
-        VALUES (${fitId}, ${name}, ${image}, ${JSON.stringify(links || [])}, 0, ${authorId}, ${authorName || 'Community Member'}, ${createdTimestamp})
+        VALUES (${fitId}, ${name}, ${image}, ${JSON.stringify(links || [])}::jsonb, 0, ${authorId}, ${authorName || 'Community Member'}, ${createdTimestamp})
       `;
 
       return res.status(201).json({

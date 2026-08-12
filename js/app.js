@@ -41,6 +41,7 @@ const elements = {
   authAlert: document.getElementById("authAlert"),
   loginForm: document.getElementById("loginForm"),
   signupForm: document.getElementById("signupForm"),
+  dbStatusBanner: document.getElementById("dbStatusBanner"),
 };
 
 let selectedImageData = null;
@@ -317,9 +318,12 @@ async function renderFits() {
     if (res.ok) {
       fits = await res.json();
       saveFits(fits);
+      if (elements.dbStatusBanner) elements.dbStatusBanner.hidden = true;
+    } else if (res.status === 503) {
+      if (elements.dbStatusBanner) elements.dbStatusBanner.hidden = false;
     }
   } catch (err) {
-    // API offline or DB env var pending
+    if (elements.dbStatusBanner) elements.dbStatusBanner.hidden = false;
   }
 
   elements.fitsGrid.innerHTML = "";
@@ -532,6 +536,12 @@ async function handleLoginSubmit(e) {
     } else if (res.status === 401) {
       showAuthAlert(data.error || "Invalid username or password.");
       return;
+    } else if (res.status === 503) {
+      showAuthAlert(data.error || "Database not connected. Please set DATABASE_URL in Vercel.");
+      return;
+    } else if (data.error) {
+      showAuthAlert(data.error);
+      return;
     }
   } catch (err) {
     console.warn("API login failed, falling back to local storage:", err);
@@ -589,6 +599,12 @@ async function handleSignupSubmit(e) {
       return;
     } else if (res.status === 409) {
       showAuthAlert(data.error || "That username is already taken. Please try another.");
+      return;
+    } else if (res.status === 503) {
+      showAuthAlert(data.error || "Database not connected. Please set DATABASE_URL in Vercel.");
+      return;
+    } else if (data.error) {
+      showAuthAlert(data.error);
       return;
     }
   } catch (err) {
